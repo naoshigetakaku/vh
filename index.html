@@ -1,0 +1,1640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="icon" type="image/png" href="logo.PNG">
+<link rel="apple-touch-icon" href="logo.PNG">
+<title>Vocabholic</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════
+   VOCABHOLIC — style.css
+═══════════════════════════════════════════ */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap');
+
+:root {
+  --bg:               #0c0c0e;
+  --surface:          #141417;
+  --surface2:         #1c1c20;
+  --surface3:         #242428;
+  --border:           #2c2c32;
+  --border-soft:      #1e1e22;
+  --text:             #f0f0f2;
+  --text-muted:       #7a7a85;
+  --text-dim:         #44444e;
+  --accent:           #e8533a;
+  --accent3:          #3d8ef0;
+  --know:             #3dba72;
+  --unknown:          #e8533a;
+  --card-bg:          #131316;
+  --card-back-1:      #0f1220;
+  --card-back-2:      #121828;
+  --card-back-3:      #0c1a38;
+  --card-back-border: #1c2f55;
+  --jp-color:         #6ab4d8;
+  --tab-h:            58px;
+  --header-h:         52px;
+  --filter-h:         50px;
+  --radius-card:      22px;
+  --radius-ui:        12px;
+  --shadow-card:      0 8px 32px rgba(0,0,0,.4);
+  --shadow-modal:     0 20px 60px rgba(0,0,0,.6);
+  --toast-bg:         rgba(22,22,26,.95);
+  --toast-border:     rgba(255,255,255,.08);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --bg:               #f5f4f0;
+    --surface:          #ffffff;
+    --surface2:         #eeede9;
+    --surface3:         #e5e4e0;
+    --border:           #d8d7d2;
+    --border-soft:      #e8e7e3;
+    --text:             #1a1a1e;
+    --text-muted:       #7a7870;
+    --text-dim:         #b0afa9;
+    --accent:           #c94028;
+    --accent3:          #2468d0;
+    --know:             #2a9655;
+    --unknown:          #c94028;
+    --card-bg:          #ffffff;
+    --card-back-1:      #1a2040;
+    --card-back-2:      #1e2a50;
+    --card-back-3:      #162048;
+    --card-back-border: #2a3d6a;
+    --jp-color:         #4a9ac8;
+    --shadow-card:      0 4px 24px rgba(0,0,0,.10);
+    --shadow-modal:     0 16px 48px rgba(0,0,0,.18);
+    --toast-bg:         rgba(255,255,255,.97);
+    --toast-border:     rgba(0,0,0,.10);
+  }
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+
+html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); }
+body { color:var(--text); font-family:'DM Sans',sans-serif; -webkit-font-smoothing:antialiased; }
+
+/* ── #app は position:fixed で画面にピン留め ──
+   Safari PWAでは height:100% / 100vh が
+   ブラウザUIを含む高さを返すことがある。
+   position:fixed + inset:0 が唯一確実な方法。 */
+#app {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg);
+}
+
+/* ── HEADER ──
+   padding-top で safe-area-inset-top を吸収 */
+#header {
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-left: 18px;
+  padding-right: 18px;
+  padding-bottom: 10px;
+  min-height: calc(var(--header-h) + env(safe-area-inset-top, 0px));
+  display: flex; align-items: flex-end; justify-content: space-between;
+  background: var(--bg); border-bottom: 1px solid var(--border-soft);
+  flex-shrink: 0; z-index: 100;
+}
+
+.logo-text { font-family:'Syne',sans-serif; font-size:22px; font-weight:800; letter-spacing:-.5px; color:var(--text); }
+.logo-accent { color:var(--accent); }
+.header-right { display:flex; align-items:center; gap:10px; }
+#word-count-badge { font-size:11px; color:var(--text-muted); font-weight:500; }
+.icon-btn {
+  width:36px; height:36px; border-radius:50%;
+  border:1px solid var(--border); background:var(--surface2);
+  color:var(--text-muted); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:background .15s, color .15s;
+}
+.icon-btn svg { width:16px; height:16px; }
+.icon-btn:hover { background:var(--surface3); color:var(--text); }
+
+/* ── FILTER BAR ── */
+#filter-bar {
+  height: var(--filter-h);
+  display:flex; align-items:center; padding:0 16px;
+  background:var(--bg); border-bottom:1px solid var(--border-soft);
+  flex-shrink:0;
+}
+.filter-segment {
+  display:flex; align-items:center;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:10px; overflow:hidden; height:34px;
+}
+.fseg-btn {
+  height:100%; padding:0 16px; border:none; background:transparent;
+  color:var(--text-dim); font-size:12px; font-weight:600; letter-spacing:.3px;
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  display:flex; align-items:center; gap:7px; transition:background .2s, color .2s;
+}
+.fseg-btn:not(.active):hover { background:var(--surface3); color:var(--text-muted); }
+#fseg-unknown.active { background:rgba(232,83,58,.18); color:var(--unknown); }
+#fseg-known.active   { background:rgba(61,186,114,.18); color:var(--know); }
+.fseg-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; transition:transform .2s; }
+.fseg-btn.active .fseg-dot { transform:scale(1.25); }
+.fseg-divider { width:1px; height:18px; background:var(--border); flex-shrink:0; }
+
+/* ── BOTTOM TABS ──
+   ポイント: height を使わず padding-bottom だけで safe-area を吸収。
+   タブのアイコン/テキストは固定の var(--tab-h) 内に収まる。
+   背景色が safe-area 領域まで自動で広がる。 */
+#mode-tabs {
+  display: flex;
+  flex-shrink: 0;
+  background: var(--bg);
+  border-top: 1px solid var(--border-soft);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  z-index: 100;
+}
+.tab {
+  flex: 1;
+  height: var(--tab-h);
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px;
+  cursor:pointer; color:var(--text-dim); font-size:10px; font-weight:600;
+  letter-spacing:.5px; text-transform:uppercase; border:none; background:none;
+  transition:color .18s; position:relative;
+}
+.tab svg { width:20px; height:20px; transition:opacity .18s; }
+.tab:not(.active) svg { opacity:.4; }
+.tab.active { color:var(--text); }
+.tab.active::before {
+  content:''; position:absolute; top:0;
+  left:28%; right:28%; height:2px; border-radius:0 0 3px 3px;
+}
+#tab-explore.active::before { background:var(--accent); }
+#tab-quiz.active::before    { background:var(--accent3); }
+
+/* ── VIEWS ── */
+.view { flex:1; overflow:hidden; display:none; min-height:0; position:relative; }
+.view.active { display:flex; flex-direction:column; }
+
+/* ═══════════════════════════════════════
+   EXPLORE — CARD FEED
+═══════════════════════════════════════ */
+#card-feed {
+  flex:1; min-height:0;
+  overflow-y:scroll; overflow-x:hidden;
+  scroll-snap-type:y mandatory; scrollbar-width:none;
+  overscroll-behavior-y:none;
+}
+#card-feed::-webkit-scrollbar { display:none; }
+
+.card-slide {
+  width:100%; height:100%;
+  scroll-snap-align:start; scroll-snap-stop:always;
+  display:flex; align-items:center; justify-content:center;
+  padding:12px 14px; flex-shrink:0;
+  transition:height .28s ease, padding .28s ease;
+}
+.card-slide.swiped-right,
+.card-slide.swiped-left { height:0; padding:0; overflow:hidden; }
+
+.flashcard {
+  width:100%; max-width:360px;
+  aspect-ratio:3/4; max-height:100%;
+  position:relative; perspective:1400px; user-select:none;
+}
+.card-inner {
+  width:100%; height:100%; position:relative;
+  transform-style:preserve-3d;
+  transition:transform .45s cubic-bezier(.35,0,.15,1);
+  border-radius:var(--radius-card);
+}
+.card-inner.flipped { transform:rotateY(180deg); }
+.card-face {
+  position:absolute; inset:0; border-radius:var(--radius-card);
+  backface-visibility:hidden; -webkit-backface-visibility:hidden; overflow:hidden;
+}
+
+/* FRONT */
+.card-front {
+  background:var(--card-bg); border:2px solid var(--border);
+  box-shadow:var(--shadow-card);
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  gap:12px; padding:28px 24px;
+  transition:border-color .3s, box-shadow .3s; cursor:pointer;
+}
+.card-slide[data-status="known"]   .card-front { border-color:rgba(61,186,114,.6);  box-shadow:var(--shadow-card),0 0 0 1px rgba(61,186,114,.1); }
+.card-slide[data-status="unknown"] .card-front { border-color:rgba(232,83,58,.6);   box-shadow:var(--shadow-card),0 0 0 1px rgba(232,83,58,.1); }
+
+.word-type { font-size:10px; letter-spacing:2.5px; text-transform:uppercase; color:var(--text-muted); font-weight:600; }
+.word {
+  font-family:'Syne',sans-serif; font-weight:800; font-size:40px;
+  text-align:center; line-height:1.1; word-break:break-word; hyphens:auto;
+  padding:0 8px; width:100%;
+  text-shadow:0 0 18px rgba(61,142,240,.45), 0 0 36px rgba(61,142,240,.18);
+}
+.tap-hint {
+  position:absolute; bottom:18px; font-size:11px; color:var(--text-dim);
+  display:flex; align-items:center; gap:5px; pointer-events:none;
+}
+.tap-hint svg { width:13px; height:13px; }
+.swipe-indicators {
+  position:absolute; top:50%; transform:translateY(-50%);
+  width:100%; display:flex; justify-content:space-between;
+  padding:0 14px; pointer-events:none;
+}
+.swipe-arrow {
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center; opacity:.2;
+}
+.swipe-arrow svg { width:14px; height:14px; }
+.swipe-arrow.left  { background:rgba(232,83,58,.25);  color:var(--unknown); }
+.swipe-arrow.right { background:rgba(61,186,114,.25); color:var(--know); }
+
+/* BACK */
+.card-back {
+  background:linear-gradient(155deg, var(--card-back-1) 0%, var(--card-back-2) 50%, var(--card-back-3) 100%);
+  border:1px solid var(--card-back-border); box-shadow:var(--shadow-card);
+  transform:rotateY(180deg);
+  display:flex; flex-direction:column; justify-content:center;
+  padding:22px; gap:9px; overflow-y:auto; cursor:pointer;
+}
+.card-back::-webkit-scrollbar { width:3px; }
+.card-back::-webkit-scrollbar-thumb { background:rgba(255,255,255,.15); border-radius:2px; }
+
+.jp-word    { font-family:'Syne',sans-serif; font-weight:700; font-size:26px; color:var(--jp-color); line-height:1.25; word-break:break-word; }
+.back-type  { font-size:9px; letter-spacing:2.5px; text-transform:uppercase; color:rgba(106,180,216,.5); font-weight:600; }
+.cb-divider { height:1px; background:rgba(255,255,255,.07); flex-shrink:0; }
+.section-label { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:rgba(106,180,216,.5); font-weight:600; }
+.definition { font-size:12.5px; line-height:1.7; color:rgba(255,255,255,.82); font-weight:300; }
+.usage-ex {
+  font-size:11px; line-height:1.55; color:rgba(255,255,255,.5);
+  font-style:italic; border-left:2px solid rgba(61,130,220,.45); padding-left:9px;
+}
+.youglish-btn {
+  display:inline-flex; align-items:center; gap:6px;
+  margin-top:4px; align-self:flex-start;
+  padding:5px 12px; border-radius:20px;
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.14);
+  color:rgba(255,255,255,.55); font-size:11px; font-weight:600;
+  font-family:'DM Sans',sans-serif; letter-spacing:.3px;
+  text-decoration:none; cursor:pointer; transition:background .15s, color .15s;
+  -webkit-user-select:none; user-select:none;
+}
+.youglish-btn:hover { background:rgba(255,255,255,.13); color:rgba(255,255,255,.85); }
+
+@keyframes swipeR { to { transform:translateX(110%) rotate(12deg);  opacity:0; } }
+@keyframes swipeL { to { transform:translateX(-110%) rotate(-12deg); opacity:0; } }
+.card-slide.swiped-right .flashcard { animation:swipeR .28s ease forwards; }
+.card-slide.swiped-left  .flashcard { animation:swipeL .28s ease forwards; }
+
+/* ═══════════════════════════════════════
+   QUIZ — START SCREEN
+═══════════════════════════════════════ */
+#quiz-start-screen { flex:1; display:flex; align-items:center; justify-content:center; padding:24px; }
+.qs-inner { width:100%; max-width:340px; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.qs-title { font-family:'Syne',sans-serif; font-weight:800; font-size:24px; letter-spacing:-.5px; }
+.qs-sub   { font-size:12px; color:var(--text-muted); margin-top:-8px; }
+
+.qs-n-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; width:100%; }
+.qs-n-btn {
+  height:48px; border-radius:13px;
+  border:1px solid var(--border); background:var(--surface2);
+  color:var(--text-muted); font-family:'Syne',sans-serif;
+  font-size:20px; font-weight:700; cursor:pointer; transition:all .18s;
+}
+.qs-n-btn:hover  { border-color:var(--accent3); color:var(--text); background:var(--surface3); }
+.qs-n-btn.active { background:var(--accent3); border-color:var(--accent3); color:#fff; box-shadow:0 4px 18px rgba(61,142,240,.35); }
+
+.qs-lang-row {
+  display:flex; align-items:center; gap:10px;
+  background:var(--surface2); border:1px solid var(--border);
+  border-radius:12px; padding:9px 16px; width:100%; justify-content:center;
+}
+.toggle-label { font-size:12px; color:var(--text-muted); font-weight:600; letter-spacing:.4px; }
+.toggle-switch {
+  width:40px; height:22px; background:var(--surface3); border-radius:11px;
+  position:relative; cursor:pointer; border:1px solid var(--border); transition:background .2s, border-color .2s;
+}
+.toggle-switch.on { background:var(--accent3); border-color:var(--accent3); }
+.toggle-knob {
+  width:16px; height:16px; background:#fff; border-radius:50%;
+  position:absolute; top:2px; left:2px;
+  transition:transform .2s cubic-bezier(.4,0,.2,1); box-shadow:0 1px 4px rgba(0,0,0,.3);
+}
+.toggle-switch.on .toggle-knob { transform:translateX(18px); }
+
+.qs-start-btn {
+  width:100%; height:48px; border-radius:13px; border:none;
+  background:var(--accent3); color:#fff;
+  font-family:'Syne',sans-serif; font-weight:700; font-size:15px;
+  cursor:pointer; display:flex; align-items:center; justify-content:center; gap:10px;
+  transition:opacity .15s, transform .1s; box-shadow:0 6px 24px rgba(61,142,240,.35);
+}
+.qs-start-btn:active { transform:scale(.98); opacity:.9; }
+
+/* ═══════════════════════════════════════
+   QUIZ — ACTIVE
+═══════════════════════════════════════ */
+#quiz-active { flex:1; display:flex; flex-direction:column; min-height:0; }
+#quiz-header { padding:10px 14px; border-bottom:1px solid var(--border-soft); background:var(--bg); flex-shrink:0; }
+.qh-row { display:flex; align-items:center; gap:12px; }
+.qh-stop-btn {
+  width:32px; height:32px; flex-shrink:0; border-radius:8px;
+  border:1px solid var(--border); background:var(--surface2); color:var(--text-muted);
+  display:flex; align-items:center; justify-content:center; cursor:pointer; transition:background .15s, color .15s;
+}
+.qh-stop-btn:hover { background:rgba(232,83,58,.12); color:var(--unknown); border-color:rgba(232,83,58,.3); }
+.quiz-progress-wrap { flex:1; display:flex; flex-direction:column; gap:5px; }
+.qp-toprow { display:flex; align-items:baseline; justify-content:space-between; }
+.qp-label { font-size:11px; color:var(--text-muted); font-weight:500; }
+.qp-tally { display:flex; align-items:center; gap:7px; font-size:11px; font-weight:700; font-family:'Syne',sans-serif; }
+.tally-c, .tally-w { display:flex; align-items:center; gap:2px; }
+.tally-c { color:var(--know); }
+.tally-w { color:var(--unknown); }
+.tally-c::before { content:'✓'; font-size:9px; }
+.tally-w::before { content:'✗'; font-size:9px; }
+.qp-bar   { height:3px; background:var(--border); border-radius:3px; overflow:hidden; }
+.qp-fill  { height:100%; background:var(--accent3); border-radius:3px; transition:width .35s ease; }
+#quiz-body { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:12px; -webkit-overflow-scrolling:touch; }
+
+.quiz-card { background:var(--card-bg); border:1px solid var(--border-soft); border-radius:16px; padding:18px 16px; display:flex; flex-direction:column; gap:8px; }
+.quiz-priority-tag { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--unknown); font-weight:700; display:flex; align-items:center; gap:5px; }
+.quiz-priority-tag::before { content:''; width:6px; height:6px; border-radius:50%; background:var(--unknown); flex-shrink:0; }
+.quiz-q-label  { font-size:9px; letter-spacing:2px; text-transform:uppercase; color:var(--text-dim); font-weight:600; }
+.quiz-prompt   { font-family:'Syne',sans-serif; font-weight:700; font-size:27px; line-height:1.15; word-break:break-word; }
+.quiz-type     { font-size:10px; color:var(--text-dim); letter-spacing:.5px; font-style:italic; }
+
+.quiz-opts { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px; }
+.qopt {
+  background:var(--surface2); border:1px solid var(--border); border-radius:var(--radius-ui);
+  padding:13px 10px; font-size:13px; font-weight:500; color:var(--text);
+  cursor:pointer; text-align:center; font-family:'DM Sans',sans-serif;
+  transition:border-color .15s, background .15s, transform .1s;
+  line-height:1.4; word-break:break-word; min-height:48px;
+}
+.qopt:active   { transform:scale(.97); }
+.qopt.correct  { background:rgba(61,186,114,.12); border-color:var(--know);    color:var(--know); }
+.qopt.wrong    { background:rgba(232,83,58,.12);  border-color:var(--unknown); color:var(--unknown); }
+.qopt.reveal   { background:rgba(61,186,114,.07); border-color:rgba(61,186,114,.35); color:var(--know); }
+.qopt.disabled { pointer-events:none; }
+
+.quiz-chip { display:none; align-items:center; gap:6px; font-size:12px; font-weight:600; margin-top:2px; }
+.quiz-chip.visible { display:flex; }
+.chip-c { color:var(--know); }
+.chip-w { color:var(--unknown); }
+
+/* ═══════════════════════════════════════
+   QUIZ — RESULT SCREEN
+═══════════════════════════════════════ */
+#quiz-result-screen { flex:1; display:flex; flex-direction:column; min-height:0; overflow:hidden; }
+.qr-scroll { flex:1; overflow-y:auto; padding:24px 20px; -webkit-overflow-scrolling:touch; }
+.qr-inner { width:100%; max-width:340px; margin:0 auto; display:flex; flex-direction:column; align-items:center; gap:16px; }
+.qr-title { font-family:'Syne',sans-serif; font-weight:800; font-size:26px; letter-spacing:-.5px; }
+.qr-pct { font-family:'Syne',sans-serif; font-weight:800; font-size:52px; letter-spacing:-2px; line-height:1; }
+.qr-pct.bad  { color:var(--unknown); }
+.qr-pct.mid  { color:#f5a623; }
+.qr-pct.good { color:var(--know); }
+
+.qr-subline { font-size:13px; color:var(--text-muted); margin-top:-8px; }
+
+.qr-btns { display:flex; gap:10px; width:100%; }
+.qr-btn-secondary { flex:1; height:46px; border-radius:12px; border:1px solid var(--border); background:none; color:var(--text); font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background .15s; }
+.qr-btn-secondary:hover { background:var(--surface2); }
+.qr-btn-primary { flex:1; height:46px; border-radius:12px; border:none; background:var(--accent3); color:#fff; font-size:13px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; transition:opacity .15s; box-shadow:0 4px 16px rgba(61,142,240,.3); }
+.qr-btn-primary:hover { opacity:.88; }
+
+.qr-wrong-toggle-wrap { width:100%; }
+.qr-wrong-toggle-btn {
+  width:100%; height:40px; border-radius:10px; border:1px solid var(--border); background:none;
+  color:var(--text-muted); font-size:12px; font-weight:600; cursor:pointer;
+  font-family:'DM Sans',sans-serif; display:flex; align-items:center; justify-content:center; gap:6px;
+  transition:background .15s, color .15s, border-color .15s;
+}
+.qr-wrong-toggle-btn:hover { background:var(--surface2); color:var(--text); }
+.qr-wrong-toggle-btn.open  { border-color:var(--unknown); color:var(--unknown); background:rgba(232,83,58,.06); }
+.qr-wrong-toggle-btn.open svg { transform:rotate(180deg); }
+.qr-wrong-toggle-btn svg { transition:transform .2s; }
+.qr-wrong-list { display:flex; flex-direction:column; gap:6px; margin-top:10px; }
+.qr-wrong-item { background:var(--surface2); border:1px solid var(--border-soft); border-left:3px solid rgba(232,83,58,.6); border-radius:10px; padding:10px 12px; display:flex; flex-direction:column; gap:3px; }
+.qr-wrong-word  { font-weight:700; font-size:15px; }
+.qr-wrong-jp    { font-size:11px; color:var(--jp-color); }
+.qr-wrong-ans   { display:flex; align-items:center; gap:6px; margin-top:2px; flex-wrap:wrap; }
+.qr-ans-wrong   { font-size:11px; color:var(--unknown); text-decoration:line-through; font-weight:500; }
+.qr-ans-arrow   { font-size:10px; color:var(--text-dim); }
+.qr-ans-correct { font-size:11px; color:var(--know); font-weight:600; }
+
+/* ═══════════════════════════════════════
+   MODAL
+═══════════════════════════════════════ */
+#modal-overlay {
+  position:fixed; inset:0; z-index:500;
+  background:rgba(0,0,0,.65);
+  display:none;
+  align-items:flex-start;
+  justify-content:center;
+  padding: env(safe-area-inset-top, 0px) 0 env(safe-area-inset-bottom, 0px);
+  backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+}
+#modal-overlay.open { display:flex; }
+#word-manager {
+  margin: auto 10px;
+  width: min(95%, 480px);
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px);
+  /* fallback for browsers without dvh */
+  max-height: calc(100vh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 20px);
+  background:var(--surface); border:1px solid var(--border);
+  border-radius:20px; display:flex; flex-direction:column;
+  overflow:hidden; box-shadow:var(--shadow-modal);
+  flex-shrink: 0;
+}
+#wm-header { padding:18px 20px 14px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--border-soft); }
+#wm-header h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:17px; }
+.wm-close { width:30px; height:30px; border-radius:50%; background:var(--surface2); border:none; color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.wm-close svg { width:14px; height:14px; }
+.wm-close:hover { background:var(--surface3); color:var(--text); }
+#wm-tabs { display:flex; border-bottom:1px solid var(--border-soft); padding:0 16px; background:var(--surface); }
+.wm-tab { padding:10px 14px; font-size:11px; font-weight:600; text-transform:uppercase; letter-spacing:.8px; border:none; background:none; color:var(--text-dim); cursor:pointer; position:relative; transition:color .15s; }
+.wm-tab.active { color:var(--text); }
+.wm-tab.active::after { content:''; position:absolute; bottom:0; left:0; right:0; height:2px; background:var(--accent3); }
+#wm-body { flex:1; overflow-y:auto; padding:16px; }
+#wm-body::-webkit-scrollbar { width:4px; }
+#wm-body::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+
+#import-panel { display:flex; flex-direction:column; gap:14px; }
+.import-info-box { background:var(--surface2); border-radius:10px; padding:12px 14px; font-size:12px; color:var(--text-muted); line-height:1.8; }
+.import-info-box strong { color:var(--text); }
+.import-drop { border:1.5px dashed var(--border); border-radius:14px; padding:24px 20px; text-align:center; cursor:pointer; transition:border-color .2s, background .2s; display:flex; flex-direction:column; align-items:center; gap:8px; }
+.import-drop:hover { border-color:var(--accent3); background:rgba(61,142,240,.04); }
+.drop-icon-svg { width:30px; height:30px; color:var(--text-muted); }
+.import-drop p { font-size:13px; color:var(--text-muted); line-height:1.5; }
+.import-drop strong { color:var(--text); }
+#file-input { display:none; }
+#tsv-area { width:100%; height:130px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:12px; font-family:monospace; padding:12px; resize:vertical; line-height:1.6; }
+#tsv-area:focus { outline:none; border-color:var(--accent3); }
+.import-actions { display:flex; gap:10px; }
+.btn-primary { flex:1; height:40px; border-radius:10px; border:none; background:var(--accent3); color:#fff; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:opacity .15s; }
+.btn-primary:hover { opacity:.88; }
+.btn-secondary { flex:1; height:40px; border-radius:10px; border:1px solid var(--border); background:none; color:var(--text); font-weight:500; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background .15s; }
+.btn-secondary:hover { background:var(--surface2); }
+.fetch-progress { display:flex; flex-direction:column; gap:8px; }
+.fetch-bar-wrap { height:4px; background:var(--border); border-radius:4px; overflow:hidden; }
+.fetch-bar { height:100%; background:var(--accent3); border-radius:4px; width:0%; transition:width .3s; }
+.fetch-status { font-size:11px; color:var(--text-muted); text-align:center; }
+.btn-export { width:100%; height:38px; border-radius:10px; border:1px solid var(--border); background:none; color:var(--text-muted); font-size:12px; cursor:pointer; font-family:'DM Sans',sans-serif; display:flex; align-items:center; justify-content:center; gap:7px; transition:border-color .15s, color .15s; }
+.btn-export:hover { border-color:var(--text-muted); color:var(--text); }
+
+#wm-words-panel { display:flex; flex-direction:column; gap:12px; }
+#search-words { width:100%; height:36px; background:var(--surface2); border:1px solid var(--border); border-radius:8px; color:var(--text); font-size:13px; padding:0 12px; font-family:'DM Sans',sans-serif; }
+#search-words:focus { outline:none; border-color:var(--accent3); }
+.word-list-items { display:flex; flex-direction:column; gap:5px; }
+.wl-empty-section { font-size:12px; color:var(--text-dim); padding:8px 4px; font-style:italic; }
+.word-list-item { background:var(--surface2); border:1px solid var(--border-soft); border-left:3px solid var(--border); border-radius:10px; padding:10px 12px; display:flex; align-items:center; gap:10px; }
+.word-list-item.is-unknown { border-left-color:rgba(232,83,58,.65); }
+.word-list-item.is-known   { border-left-color:rgba(61,186,114,.65); }
+.wli-word { font-weight:600; font-size:14px; flex:1; }
+.wli-jp   { font-size:12px; color:var(--jp-color); min-width:80px; }
+.wli-actions { display:flex; gap:5px; }
+.wli-btn { width:26px; height:26px; border-radius:7px; border:none; background:var(--surface3); color:var(--text-muted); cursor:pointer; display:flex; align-items:center; justify-content:center; }
+.wli-btn svg { width:12px; height:12px; }
+.wli-btn:hover { background:var(--border); color:var(--text); }
+.wli-btn.del:hover { background:rgba(232,83,58,.15); color:var(--unknown); }
+.wli-edit-row { display:none; flex-direction:column; gap:6px; margin-top:8px; }
+.wli-edit-row.open { display:flex; }
+.wli-edit-row input, .wli-edit-row textarea { background:var(--surface); border:1px solid var(--border); border-radius:6px; color:var(--text); font-size:12px; padding:6px 10px; font-family:'DM Sans',sans-serif; width:100%; }
+.wli-edit-row input:focus, .wli-edit-row textarea:focus { outline:none; border-color:var(--accent3); }
+.wli-edit-row textarea { height:56px; resize:none; }
+.wli-save-btn { align-self:flex-end; height:28px; padding:0 14px; background:var(--accent3); color:#fff; border:none; border-radius:6px; font-size:12px; cursor:pointer; font-weight:600; }
+.words-footer { display:flex; gap:8px; margin-top:4px; }
+#add-word-btn { flex:1; height:38px; border-radius:10px; border:1px dashed var(--border); background:none; color:var(--text-muted); font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:border-color .15s, color .15s; }
+#add-word-btn:hover { border-color:var(--accent3); color:var(--accent3); }
+#clear-all-btn { height:38px; padding:0 14px; border-radius:10px; border:1px solid rgba(232,83,58,.35); background:rgba(232,83,58,.07); color:var(--unknown); font-size:12px; font-weight:600; cursor:pointer; font-family:'DM Sans',sans-serif; display:flex; align-items:center; gap:6px; transition:background .15s, border-color .15s; }
+#clear-all-btn:hover { background:rgba(232,83,58,.15); border-color:var(--unknown); }
+
+/* ── PASSWORD DIALOG ── */
+#pw-overlay { position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.7); display:none; align-items:center; justify-content:center; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+#pw-overlay.open { display:flex; }
+#pw-modal { background:var(--surface); border:1px solid var(--border); border-radius:16px; padding:24px 22px; width:min(90%,320px); display:flex; flex-direction:column; gap:14px; box-shadow:var(--shadow-modal); }
+#pw-modal p { font-size:14px; font-weight:500; }
+.pw-actions { display:flex; gap:8px; }
+.btn-danger { flex:1; height:38px; border-radius:9px; border:none; background:var(--unknown); color:#fff; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:opacity .15s; }
+.btn-danger:hover { opacity:.88; }
+.pw-actions .btn-secondary { flex:1; height:38px; }
+
+/* ── HEADER DROPDOWN MENU ── */
+.hd-wrap { position:relative; }
+.header-dropdown {
+  position:absolute; top:calc(100% + 8px); right:0;
+  width:208px; background:var(--surface); border:1px solid var(--border);
+  border-radius:14px; box-shadow:var(--shadow-modal);
+  display:flex; flex-direction:column; padding:6px;
+  opacity:0; transform:translateY(-6px) scale(.97); pointer-events:none;
+  transition:opacity .15s, transform .15s;
+  z-index:150;
+}
+.header-dropdown.open { opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+.hd-item {
+  display:flex; align-items:center; gap:10px;
+  height:40px; padding:0 10px; border-radius:9px; border:none; background:none;
+  color:var(--text); font-size:13px; font-weight:500; font-family:'DM Sans',sans-serif;
+  cursor:pointer; text-align:left; width:100%; transition:background .15s;
+}
+.hd-item:hover { background:var(--surface2); }
+.hd-icon { width:15px; height:15px; flex-shrink:0; color:var(--text-muted); }
+.hd-divider { height:1px; background:var(--border-soft); margin:5px 6px; }
+.hd-danger { color:var(--unknown); }
+.hd-danger .hd-icon { color:var(--unknown); }
+.hd-danger:hover { background:rgba(232,83,58,.08); }
+
+/* ── QUICK ADD MODAL ── */
+#qa-overlay {
+  position:fixed; inset:0; z-index:600; background:rgba(0,0,0,.7); display:none;
+  align-items:flex-start; justify-content:center;
+  padding: calc(env(safe-area-inset-top, 0px) + 64px) 14px 14px;
+  backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px);
+}
+#qa-overlay.open { display:flex; }
+#qa-modal {
+  background:var(--surface); border:1px solid var(--border); border-radius:18px;
+  padding:20px; width:min(94%,360px); display:flex; flex-direction:column; gap:13px;
+  box-shadow:var(--shadow-modal); max-height:80vh;
+}
+.qa-header { display:flex; align-items:center; justify-content:space-between; }
+.qa-header h2 { font-family:'Syne',sans-serif; font-weight:700; font-size:17px; }
+.qa-sub { font-size:12px; color:var(--text-muted); line-height:1.6; margin-top:-8px; }
+.qa-input-row { display:flex; gap:8px; }
+#qa-input { flex:1; height:42px; background:var(--surface2); border:1px solid var(--border); border-radius:10px; color:var(--text); font-size:14px; padding:0 14px; font-family:'DM Sans',sans-serif; }
+#qa-input:focus { outline:none; border-color:var(--accent3); }
+.qa-add-btn { height:42px; padding:0 18px; border-radius:10px; border:none; background:var(--accent3); color:#fff; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:opacity .15s; }
+.qa-add-btn:hover { opacity:.88; }
+.qa-add-btn:disabled { opacity:.6; cursor:default; }
+.qa-status { font-size:12px; color:var(--text-muted); min-height:14px; margin-top:-6px; }
+.qa-recent { display:flex; flex-direction:column; gap:6px; max-height:208px; overflow-y:auto; }
+.qa-recent-item { display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface2); border:1px solid var(--border-soft); border-radius:9px; padding:9px 12px; animation:qa-pop .22s ease; }
+@keyframes qa-pop { from{ opacity:0; transform:translateY(-4px);} to{ opacity:1; transform:translateY(0);} }
+.qa-recent-word { font-weight:600; font-size:13px; }
+.qa-recent-jp { font-size:11px; color:var(--jp-color); text-align:right; }
+.qa-done-btn { height:42px; border-radius:10px; border:1px solid var(--border); background:none; color:var(--text); font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:background .15s; }
+.qa-done-btn:hover { background:var(--surface2); }
+
+/* ── EMPTY STATE ── */
+.empty-state { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px; height:100%; padding:40px 28px; text-align:center; }
+.empty-icon { width:56px; height:56px; color:var(--text-dim); opacity:.6; }
+.empty-state h3 { font-family:'Syne',sans-serif; font-size:18px; font-weight:700; }
+.empty-state p  { font-size:13px; color:var(--text-muted); line-height:1.65; }
+.btn-open-mgr { margin-top:6px; height:40px; padding:0 22px; background:var(--accent3); color:#fff; border:none; border-radius:10px; font-weight:600; font-size:13px; cursor:pointer; font-family:'DM Sans',sans-serif; transition:opacity .15s; }
+.btn-open-mgr:hover { opacity:.88; }
+
+/* ── TOAST ── */
+#toast {
+  position:fixed;
+  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 14px);
+  left:50%; transform:translateX(-50%) translateY(16px);
+  background:var(--toast-bg); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
+  border:1px solid var(--toast-border); border-radius:20px;
+  padding:9px 20px; font-size:13px; font-weight:500;
+  z-index:9999; opacity:0; transition:opacity .22s, transform .22s;
+  pointer-events:none; white-space:nowrap; box-shadow:0 4px 20px rgba(0,0,0,.25);
+}
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── LIGHT MODE card-back overrides ── */
+@media (prefers-color-scheme: light) {
+  .card-back .definition  { color:rgba(255,255,255,.88); }
+  .card-back .usage-ex    { color:rgba(255,255,255,.6); }
+  .card-back .section-label { color:rgba(160,200,230,.6); }
+  .card-back .back-type   { color:rgba(160,200,230,.6); }
+  .card-back .cb-divider  { background:rgba(255,255,255,.1); }
+  .card-back .jp-word     { color:#8cc8e8; }
+  .qopt { background:var(--surface3); }
+  .word { text-shadow:0 0 14px rgba(36,104,208,.4), 0 0 28px rgba(36,104,208,.15); }
+}
+
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header id="header">
+    <span class="logo-text">Vocab<span class="logo-accent">holic</span></span>
+    <div class="header-right">
+      <span id="word-count-badge">0 words</span>
+
+      <button class="icon-btn" id="quick-add-trigger" aria-label="Add Word" onclick="openQuickAdd()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+      </button>
+
+      <div class="hd-wrap" id="header-menu-wrap">
+        <button class="icon-btn" id="open-manager-btn" aria-label="Menu" onclick="toggleHeaderMenu()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <line x1="3" y1="6"  x2="21" y2="6"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="18" x2="15" y2="18"/>
+          </svg>
+        </button>
+        <div id="header-dropdown" class="header-dropdown">
+          <button class="hd-item" onclick="openManager('words')">
+            <svg class="hd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+            Manage Words
+          </button>
+          <button class="hd-item" onclick="openManager('import')">
+            <svg class="hd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Import List
+          </button>
+          <button class="hd-item" onclick="exportTSV(); closeHeaderMenu();">
+            <svg class="hd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Export TSV
+          </button>
+          <div class="hd-divider"></div>
+          <button class="hd-item hd-danger" onclick="clearAllWords(); closeHeaderMenu();">
+            <svg class="hd-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            Reset All Words
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+  <div id="filter-bar">
+    <div class="filter-segment">
+      <button class="fseg-btn" id="fseg-unknown" onclick="toggleFilter('unknown')">
+        <span class="fseg-dot" style="background:var(--unknown)"></span>Unknown
+      </button>
+      <div class="fseg-divider"></div>
+      <button class="fseg-btn" id="fseg-known" onclick="toggleFilter('known')">
+        <span class="fseg-dot" style="background:var(--know)"></span>Known
+      </button>
+    </div>
+  </div>
+
+  <div class="view active" id="explore-view">
+    <div id="card-feed"></div>
+  </div>
+
+  <div class="view" id="quiz-view">
+    <div id="quiz-start-screen">
+      <div class="qs-inner">
+        <div class="qs-title">Quiz Me</div>
+        <div class="qs-sub">How many questions?</div>
+        <div class="qs-n-grid">
+          <button class="qs-n-btn active" data-n="10"  onclick="selectQuizN(10,this)">10</button>
+          <button class="qs-n-btn"        data-n="30"  onclick="selectQuizN(30,this)">30</button>
+          <button class="qs-n-btn"        data-n="50"  onclick="selectQuizN(50,this)">50</button>
+          <button class="qs-n-btn"        data-n="100" onclick="selectQuizN(100,this)">100</button>
+        </div>
+        <div class="qs-lang-row">
+          <span class="toggle-label">EN → JP</span>
+          <div class="toggle-switch" id="lang-toggle" onclick="toggleLang()"><div class="toggle-knob"></div></div>
+          <span class="toggle-label">JP → EN</span>
+        </div>
+        <button class="qs-start-btn" onclick="startQuiz()">
+          <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18"><polygon points="5,3 19,12 5,21"/></svg>
+          Start Quiz
+        </button>
+      </div>
+    </div>
+
+    <div id="quiz-active" style="display:none">
+      <div id="quiz-header">
+        <div class="qh-row">
+          <button class="qh-stop-btn" onclick="stopQuiz()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          </button>
+          <div class="quiz-progress-wrap">
+            <div class="qp-toprow">
+              <div class="qp-label" id="qp-label">1 / 0</div>
+              <div class="qp-tally" id="qp-tally"></div>
+            </div>
+            <div class="qp-bar"><div class="qp-fill" id="qp-fill" style="width:0%"></div></div>
+          </div>
+        </div>
+      </div>
+      <div id="quiz-body"></div>
+    </div>
+
+    <div id="quiz-result-screen" style="display:none">
+      <div class="qr-scroll">
+        <div class="qr-inner">
+          <div class="qr-title">Results</div>
+          <div class="qr-pct" id="qr-pct">0%</div>
+          <div class="qr-subline" id="qr-subline">0 correct · 0 wrong · 0 total</div>
+          <div class="qr-btns">
+            <button class="qr-btn-secondary" onclick="showQuizStart()">Change Settings</button>
+            <button class="qr-btn-primary"   onclick="startQuiz()">Try Again</button>
+          </div>
+          <div class="qr-wrong-toggle-wrap" id="qr-wrong-toggle-wrap">
+            <button class="qr-wrong-toggle-btn" id="qr-wrong-toggle-btn" onclick="toggleMissedWords()">
+              See incorrect answers
+              <svg id="qr-toggle-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <div id="qr-wrong-list" class="qr-wrong-list" style="display:none"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <nav id="mode-tabs">
+    <button class="tab active" id="tab-explore" onclick="switchView('explore')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <circle cx="12" cy="12" r="10"/>
+        <polygon points="16.24,7.76 14.12,14.12 7.76,16.24 9.88,9.88" fill="currentColor" stroke="none" opacity="0.4"/>
+        <circle cx="12" cy="12" r="1.5" fill="currentColor" stroke="none"/>
+      </svg>
+      Explore
+    </button>
+    <button class="tab" id="tab-quiz" onclick="switchView('quiz')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
+        <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+        <circle cx="12" cy="17" r=".5" fill="currentColor" stroke="none"/>
+        <circle cx="12" cy="12" r="10"/>
+      </svg>
+      Quiz Me
+    </button>
+  </nav>
+
+</div>
+
+<div id="modal-overlay">
+  <div id="word-manager">
+    <div id="wm-header">
+      <h2>Word Manager</h2>
+      <button class="wm-close" onclick="closeManager()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <div id="wm-tabs">
+      <button class="wm-tab active" onclick="switchWMTab('import')">Import</button>
+      <button class="wm-tab"        onclick="switchWMTab('words')">Imported Words</button>
+    </div>
+    <div id="wm-body">
+      <div id="import-panel">
+        <div class="import-info-box">
+          <strong>Word-only list</strong> — one word per line.<br>
+          Japanese, type, definition &amp; examples are auto-fetched from Cambridge Dictionary.
+        </div>
+        <div class="import-drop" id="drop-zone" onclick="document.getElementById('file-input').click()">
+          <svg class="drop-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+          <p><strong>Upload TXT / TSV file</strong></p>
+          <p>or paste below</p>
+        </div>
+        <input type="file" id="file-input" accept=".tsv,.txt,.csv">
+        <textarea id="tsv-area" placeholder="ephemeral&#10;ubiquitous&#10;serendipity&#10;..."></textarea>
+        <div class="import-actions">
+          <button class="btn-secondary" onclick="loadSamples()">Load Samples</button>
+          <button class="btn-primary"   onclick="importAndFetch()">Import &amp; Fetch</button>
+        </div>
+        <div id="fetch-progress" class="fetch-progress" style="display:none">
+          <div class="fetch-bar-wrap"><div class="fetch-bar" id="fetch-bar"></div></div>
+          <div class="fetch-status" id="fetch-status">Fetching definitions…</div>
+        </div>
+        <button class="btn-export" onclick="exportTSV()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export words as TSV
+        </button>
+      </div>
+      <div id="wm-words-panel" style="display:none">
+        <input type="text" id="search-words" placeholder="Search words…" oninput="renderWordList()">
+        <div class="word-list-items" id="wl-list"></div>
+        <div class="words-footer">
+          <button id="add-word-btn"  onclick="addNewWord()">+ Add word</button>
+          <button id="clear-all-btn" onclick="clearAllWords()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+            Clear All
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="pw-overlay">
+  <div id="pw-modal">
+    <p id="pw-modal-text">Delete all words? This can't be undone.</p>
+    <div class="pw-actions">
+      <button class="btn-secondary" onclick="closePwModal()">Cancel</button>
+      <button class="btn-danger"    onclick="confirmClear()">Delete All</button>
+    </div>
+  </div>
+</div>
+
+<div id="qa-overlay">
+  <div id="qa-modal">
+    <div class="qa-header">
+      <h2>Add Word</h2>
+      <button class="wm-close" onclick="closeQuickAdd()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
+    </div>
+    <p class="qa-sub">Type a word and tap Add — Japanese, definition &amp; examples are fetched automatically.</p>
+    <div class="qa-input-row">
+      <input type="text" id="qa-input" placeholder="e.g. ephemeral" autocomplete="off" autocapitalize="off" onkeydown="if(event.key==='Enter')quickAddWord()">
+      <button class="qa-add-btn" id="qa-add-btn" onclick="quickAddWord()">Add</button>
+    </div>
+    <div class="qa-status" id="qa-status"></div>
+    <div class="qa-recent" id="qa-recent"></div>
+    <button class="qa-done-btn" onclick="closeQuickAdd()">Done</button>
+  </div>
+</div>
+
+<div id="toast"></div>
+<script>
+/* ═══════════════════════════════════════════
+   VOCABHOLIC — script.js
+═══════════════════════════════════════════ */
+
+const COOLDOWN_MS    = 5 * 60 * 1000;
+
+const SAMPLES = [
+  { word:'ephemeral',   jp:'はかない・束の間の',       type:'adjective', def:'Lasting for a very short time.',        usage:['The ephemeral beauty of cherry blossoms reminds us to cherish the present.','Fame can be ephemeral, here today and gone tomorrow.','Her smile was ephemeral but deeply unforgettable.'] },
+  { word:'ubiquitous',  jp:'どこにでもある・遍在する',  type:'adjective', def:'Present or found everywhere.',           usage:['Smartphones have become ubiquitous in modern society.','The ubiquitous coffee shop can be found on every corner.','Plastic has become ubiquitous in our daily lives.'] },
+  { word:'serendipity', jp:'思いがけない幸運',          type:'noun',      def:'The occurrence of happy events by chance.',usage:['Finding that rare book was pure serendipity.','Many great discoveries in science happened by serendipity.','Their meeting was a beautiful act of serendipity.'] },
+  { word:'resilience',  jp:'回復力・しなやかさ',         type:'noun',      def:'The ability to recover quickly from difficulties.',usage:['Her resilience in the face of hardship inspired everyone.','Children often show remarkable resilience after difficult experiences.','The city demonstrated great resilience after the flood.'] },
+  { word:'pragmatic',   jp:'実用的な・実際的な',         type:'adjective', def:'Dealing with things in a sensible, realistic way.',usage:['We need a pragmatic approach to solving this problem.','She is a pragmatic leader who focuses on real results.','His advice was always pragmatic and genuinely useful.'] },
+];
+
+let words        = JSON.parse(localStorage.getItem('vh_words')    || 'null') || [];
+let wordStatus   = JSON.parse(localStorage.getItem('vh_status')   || '{}');
+let wordSeen     = JSON.parse(localStorage.getItem('vh_seen')     || '{}');
+let quizCooldown = JSON.parse(localStorage.getItem('vh_cooldown') || '{}');
+let wordScrolled = JSON.parse(localStorage.getItem('vh_scrolled') || '{}');
+
+function save() {
+  localStorage.setItem('vh_words',    JSON.stringify(words));
+  localStorage.setItem('vh_status',   JSON.stringify(wordStatus));
+  localStorage.setItem('vh_seen',     JSON.stringify(wordSeen));
+  localStorage.setItem('vh_cooldown', JSON.stringify(quizCooldown));
+  localStorage.setItem('vh_scrolled', JSON.stringify(wordScrolled));
+}
+
+/* ══════════════════════════════════════════
+   FETCH — Free Dictionary API + MyMemory JP
+   dictionaryapi.dev is free, public, CORS-open.
+   MyMemory is a free translation API.
+══════════════════════════════════════════ */
+async function fetchWordData(word) {
+  try {
+    // 1. English definition + examples from Free Dictionary API
+    const res = await fetch(
+      `https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`,
+      { signal: AbortSignal.timeout(10000) }
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) return null;
+
+    const entry   = data[0];
+    const meaning = entry.meanings?.[0] || {};
+    const defObj  = meaning.definitions?.[0] || {};
+
+    const type = meaning.partOfSpeech || '';
+    const def  = defObj.definition    || '';
+
+    // Collect up to 3 example sentences from all meanings/definitions
+    const examples = [];
+    for (const m of entry.meanings || []) {
+      for (const d of m.definitions || []) {
+        if (d.example) examples.push(d.example);
+        if (examples.length >= 3) break;
+      }
+      if (examples.length >= 3) break;
+    }
+
+    // 2. Japanese translation via MyMemory (free, no key needed)
+    let jp = '';
+    try {
+      const trRes = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|ja`,
+        { signal: AbortSignal.timeout(8000) }
+      );
+      const trData = await trRes.json();
+      jp = trData?.responseData?.translatedText || '';
+      // MyMemory sometimes returns the word unchanged if it can't translate
+      if (jp.toLowerCase() === word.toLowerCase()) jp = '';
+    } catch { /* translation failed, leave empty */ }
+
+    return { type, def, jp, usage: examples };
+
+  } catch { return null; }
+}
+
+async function importAndFetch() {
+  const txt = document.getElementById('tsv-area').value.trim();
+  if (!txt) { showToast('Nothing to import'); return; }
+
+  const rawWords = txt.split('\n')
+    .map(l => l.split('\t')[0].trim())
+    .filter(w => w && !w.toLowerCase().startsWith('word'));
+  if (!rawWords.length) { showToast('No words found'); return; }
+
+  const prog   = document.getElementById('fetch-progress');
+  const bar    = document.getElementById('fetch-bar');
+  const status = document.getElementById('fetch-status');
+  prog.style.display = 'flex';
+
+  let done = 0, added = 0;
+  for (const word of rawWords) {
+    status.textContent = `Fetching "${word}" (${done+1}/${rawWords.length})…`;
+    bar.style.width    = `${Math.round((done / rawWords.length) * 100)}%`;
+    if (words.find(w => w.word.toLowerCase() === word.toLowerCase())) { done++; continue; }
+
+    const data  = await fetchWordData(word);
+    const entry = {
+      word,
+      jp:    data?.jp    || '',
+      type:  data?.type  || '',
+      def:   data?.def   || '',
+      usage: data?.usage || [],   // always a clean string array
+    };
+    words.push(entry);
+    added++; done++; save();
+  }
+
+  bar.style.width    = '100%';
+  status.textContent = `Done — ${added} word${added !== 1 ? 's' : ''} added.`;
+  setTimeout(() => { prog.style.display = 'none'; }, 2500);
+  renderWordList(); updateBadge();
+  showToast(`Imported ${added} word${added !== 1 ? 's' : ''}`);
+}
+
+function exportTSV() {
+  const header = 'word\tjapanese\ttype\tdefinition\tusage1\tusage2\tusage3';
+  const rows   = words.map(w => {
+    const u = normalizeUsage(w.usage);
+    return [w.word, w.jp, w.type, w.def, u[0]||'', u[1]||'', u[2]||''].join('\t');
+  });
+  const blob = new Blob([[header, ...rows].join('\n')], { type: 'text/tab-separated-values' });
+  const a    = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'vocabholic_words.tsv'; a.click();
+  showToast('TSV exported');
+}
+
+function loadSamples() {
+  SAMPLES.forEach(s => { if (!words.find(w => w.word === s.word)) words.push(s); });
+  save(); showToast(`Loaded ${SAMPLES.length} sample words`); renderWordList(); updateBadge();
+}
+
+/* ══════════════════════════════════════════
+   NORMALIZE USAGE
+   Handles: string array, pipe-joined string,
+   stringified JSON, mixed legacy formats.
+══════════════════════════════════════════ */
+function normalizeUsage(raw) {
+  if (!raw) return [];
+
+  // Unwrap stringified JSON array
+  if (typeof raw === 'string') {
+    try { raw = JSON.parse(raw); } catch { /* not JSON */ }
+  }
+
+  // Still a string — split on any pipe variant
+  if (typeof raw === 'string') {
+    return raw.split(/[|｜]/).map(s => s.trim()).filter(Boolean).slice(0, 3);
+  }
+
+  if (!Array.isArray(raw)) return [];
+
+  // Each element might itself be pipe-joined (legacy Cambridge data)
+  return raw
+    .flatMap(s => String(s).split(/[|｜]/))
+    .map(s => s.trim())
+    .filter(Boolean)
+    .slice(0, 3);
+}
+
+/* ══════════════════════════════════════════
+   TEXT FIT
+══════════════════════════════════════════ */
+function fitText(el, maxSize, minSize) {
+  if (!el) return;
+  const maxW = el.parentElement.clientWidth - 48;
+  let size = maxSize;
+  while (size > minSize) {
+    el.style.fontSize = size + 'px';
+    if (el.scrollWidth <= maxW) break;
+    size--;
+  }
+}
+function fitAllText(container) {
+  if (!container) return;
+  fitText(container.querySelector('.word'),        40, 16);
+  fitText(container.querySelector('.jp-word'),     28, 12);
+  fitText(container.querySelector('.quiz-prompt'), 30, 14);
+}
+
+/* ══════════════════════════════════════════
+   EXPLORE FILTER
+══════════════════════════════════════════ */
+let activeFilter = null;
+
+function toggleFilter(f) {
+  activeFilter = activeFilter === f ? null : f;
+  document.getElementById('fseg-unknown')?.classList.toggle('active', activeFilter === 'unknown');
+  document.getElementById('fseg-known')?.classList.toggle('active',   activeFilter === 'known');
+  renderExploreFeed();
+}
+
+/* ══════════════════════════════════════════
+   EXPLORE FEED
+══════════════════════════════════════════ */
+function buildDeck() {
+  if (!words.length) return [];
+  let pool = words;
+  if (activeFilter === 'unknown') pool = words.filter(w => wordStatus[w.word] === 'unknown');
+  else if (activeFilter === 'known') pool = words.filter(w => wordStatus[w.word] === 'known');
+  if (!pool.length) return [];
+
+  const sh      = arr => [...arr].sort(() => Math.random() - .5);
+  const unknown = pool.filter(w => wordStatus[w.word] === 'unknown');
+  const neutral = pool.filter(w => !wordStatus[w.word]);
+  const known   = pool.filter(w => wordStatus[w.word] === 'known');
+
+  const raw  = [...sh(unknown), ...sh(unknown), ...sh(neutral), ...sh(known).filter((_,i) => i%2===0)];
+  const final = [];
+  sh(raw).forEach(w => { if (!final.length || final[final.length-1].word !== w.word) final.push(w); });
+  return final;
+}
+
+function renderExploreFeed() {
+  const feed = document.getElementById('card-feed');
+  feed.innerHTML = '';
+  if (!words.length) {
+    feed.innerHTML = emptyStateHTML(bookIcon(), 'No words yet', 'Import a word list or load sample words to start exploring.');
+    return;
+  }
+  const deck = buildDeck();
+  if (!deck.length) {
+    feed.innerHTML = emptyStateHTML(bookIcon(), 'No words in this filter', 'Switch filter or swipe more cards first.');
+    return;
+  }
+  deck.forEach(w => feed.appendChild(makeCardSlide(w)));
+  initSwipe();
+}
+
+function makeCardSlide(w) {
+  const el = document.createElement('div');
+  el.className      = 'card-slide';
+  el.dataset.word   = w.word;
+  el.dataset.status = wordStatus[w.word] || '';
+
+  const examples   = normalizeUsage(w.usage);
+  const usageHTML  = examples.length
+    ? `<div class="section-label">Examples</div>${examples.map(u => `<div class="usage-ex">${escHtml(u)}</div>`).join('')}`
+    : '';
+  const youglishURL = `https://youglish.com/pronounce/${encodeURIComponent(w.word)}/english`;
+
+  el.innerHTML = `
+    <div class="flashcard">
+      <div class="card-inner">
+        <div class="card-face card-front">
+          <div class="swipe-indicators">
+            <div class="swipe-arrow left"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M19 12H5M5 12l7-7M5 12l7 7"/></svg></div>
+            <div class="swipe-arrow right"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M14 5l7 7-7 7"/></svg></div>
+          </div>
+          <div class="word-type">${escHtml(w.type||'')}</div>
+          <div class="word">${escHtml(w.word)}</div>
+          <div class="tap-hint">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+            Tap to reveal
+          </div>
+        </div>
+        <div class="card-face card-back">
+          <div class="back-type">${escHtml(w.type||'')}</div>
+          <div class="jp-word">${escHtml(w.jp||'')}</div>
+          <div class="cb-divider"></div>
+          <div class="section-label">Definition</div>
+          <div class="definition">${escHtml(w.def||'')}</div>
+          ${usageHTML}
+          <a class="youglish-btn" href="${youglishURL}" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="currentColor" width="12" height="12"><polygon points="5,3 19,12 5,21"/></svg>
+            YouGlish
+          </a>
+        </div>
+      </div>
+    </div>`;
+
+  const fc    = el.querySelector('.flashcard');
+  const inner = el.querySelector('.card-inner');
+
+  // YouGlish button: open link, stop propagation
+  el.querySelector('.youglish-btn').addEventListener('touchend', e => {
+    e.stopPropagation();
+    window.open(youglishURL, '_blank', 'noopener');
+  }, { passive: true });
+
+  // Single tap to flip (ignore youglish button)
+  fc.addEventListener('touchend', e => {
+    if (e.target.closest('.youglish-btn')) return;
+    e.preventDefault();
+    inner.classList.toggle('flipped');
+  }, { passive: false });
+  fc.addEventListener('click', e => {
+    if (e.target.closest('.youglish-btn')) return;
+    inner.classList.toggle('flipped');
+  });
+
+  requestAnimationFrame(() => fitAllText(el));
+  return el;
+}
+
+/* ── Swipe ── */
+let txStart = 0, tyStart = 0;
+
+function initSwipe() {
+  const feed  = document.getElementById('card-feed');
+  const fresh = feed.cloneNode(false);
+  while (feed.firstChild) fresh.appendChild(feed.firstChild);
+  feed.parentNode.replaceChild(fresh, feed);
+  const f = document.getElementById('card-feed');
+  f.addEventListener('touchstart', e => {
+    txStart = e.touches[0].clientX;
+    tyStart = e.touches[0].clientY;
+  }, { passive: true });
+  f.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - txStart;
+    const dy = e.changedTouches[0].clientY - tyStart;
+    if (Math.abs(dx) > Math.abs(dy) * 1.8 && Math.abs(dx) > 60) {
+      const slide = currentSlide();
+      if (slide) markCard(slide, dx > 0 ? 'known' : 'unknown');
+    }
+  }, { passive: true });
+}
+
+function currentSlide() {
+  const feed   = document.getElementById('card-feed');
+  const slides = [...feed.querySelectorAll('.card-slide')];
+  return slides.find(s => Math.abs(s.offsetTop - feed.scrollTop) < s.offsetHeight / 2) || slides[0];
+}
+
+function markCard(slide, status) {
+  const w = slide.dataset.word;
+  wordStatus[w]   = status;
+  wordSeen[w]     = (wordSeen[w] || 0) + 1;
+  wordScrolled[w] = Date.now();
+  save();
+  slide.dataset.status = status;
+  slide.querySelector('.flashcard').classList.add(status === 'known' ? 'swiped-right' : 'swiped-left');
+  showToast(status === 'known' ? 'Marked as known ✓' : 'Will review again');
+  setTimeout(() => {
+    slide.classList.add(status === 'known' ? 'swiped-right' : 'swiped-left');
+    slide.nextElementSibling?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 280);
+  updateBadge();
+}
+
+/* ══════════════════════════════════════════
+   QUIZ
+══════════════════════════════════════════ */
+let quizJPtoEN    = false;
+let quizN         = 10;
+let quizQuestions = [];
+let quizCur       = 0;
+let quizScore     = { c: 0, w: 0 };
+let quizWrongWords = [];
+
+function toggleLang() {
+  quizJPtoEN = !quizJPtoEN;
+  document.getElementById('lang-toggle').classList.toggle('on', quizJPtoEN);
+}
+
+function selectQuizN(n, btn) {
+  quizN = n;
+  document.querySelectorAll('.qs-n-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function showQuizStart() {
+  document.getElementById('quiz-start-screen').style.display  = 'flex';
+  document.getElementById('quiz-active').style.display        = 'none';
+  document.getElementById('quiz-result-screen').style.display = 'none';
+}
+
+function startQuiz() {
+  if (words.length < 4) { showToast('Need at least 4 words'); return; }
+  quizScore      = { c: 0, w: 0 };
+  quizCur        = 0;
+  quizWrongWords = [];
+  quizQuestions  = buildQuizPool();
+  document.getElementById('quiz-start-screen').style.display  = 'none';
+  document.getElementById('quiz-active').style.display        = 'flex';
+  document.getElementById('quiz-result-screen').style.display = 'none';
+  renderQuiz();
+}
+
+function stopQuiz() { showQuizStart(); }
+
+function buildQuizPool() {
+  const now     = Date.now();
+  const sh      = arr => [...arr].sort(() => Math.random() - .5);
+  const TEN     = 10 * 60 * 1000;
+  const unknown = words.filter(w => wordStatus[w.word] === 'unknown');
+  const neutral = words.filter(w => !wordStatus[w.word]);
+  const known   = words.filter(w => wordStatus[w.word] === 'known' && (!quizCooldown[w.word] || now > quizCooldown[w.word]));
+  const recent  = words.filter(w => wordScrolled[w.word] && (now - wordScrolled[w.word]) < TEN);
+  const pool    = [...sh(unknown), ...sh(unknown), ...sh(recent), ...sh(neutral), ...sh(known)];
+  const seen    = new Set();
+  return pool
+    .filter(w => { if (seen.has(w.word)) return false; seen.add(w.word); return true; })
+    .slice(0, quizN)
+    .map(w => makeQuestion(w));
+}
+
+function makeQuestion(w) {
+  const others  = words.filter(x => x.word !== w.word).sort(() => Math.random() - .5).slice(0, 3);
+  const correct = quizJPtoEN ? w.word : w.jp;
+  const wrongs  = others.map(x => quizJPtoEN ? x.word : x.jp);
+  return {
+    prompt: quizJPtoEN ? w.jp : w.word,
+    typeHint: w.type || '',
+    correct,
+    opts: [correct, ...wrongs].sort(() => Math.random() - .5),
+    word: w.word,
+    isUnknown: wordStatus[w.word] === 'unknown',
+    answered: false,
+  };
+}
+
+function renderQuiz() {
+  const total = quizQuestions.length;
+  document.getElementById('qp-label').textContent = `${Math.min(quizCur + 1, total)} / ${total}`;
+  document.getElementById('qp-fill').style.width  = `${total ? (quizCur / total) * 100 : 0}%`;
+  document.getElementById('qp-tally').innerHTML   =
+    `<span class="tally-c">${quizScore.c}</span><span class="tally-w">${quizScore.w}</span>`;
+
+  const body = document.getElementById('quiz-body');
+  body.innerHTML = '';
+
+  if (quizCur >= total) { showQuizResult(); return; }
+
+  const q    = quizQuestions[quizCur];
+  const card = document.createElement('div');
+  card.className = 'quiz-card';
+  card.innerHTML = `
+    ${q.isUnknown ? `<div class="quiz-priority-tag">Review word</div>` : ''}
+    <div class="quiz-q-label">${quizJPtoEN ? 'English word for…' : 'Japanese for…'}</div>
+    <div class="quiz-prompt">${escHtml(q.prompt)}</div>
+    ${q.typeHint ? `<div class="quiz-type">${escHtml(q.typeHint)}</div>` : ''}
+    <div class="quiz-opts" id="quiz-opts"></div>
+    <div class="quiz-chip" id="quiz-chip"></div>`;
+  body.appendChild(card);
+
+  const optsEl = document.getElementById('quiz-opts');
+  q.opts.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'qopt'; btn.textContent = opt;
+    btn.addEventListener('click', () => answerQuiz(opt, q, optsEl));
+    optsEl.appendChild(btn);
+  });
+
+  requestAnimationFrame(() => fitAllText(card));
+}
+
+function answerQuiz(chosen, q, optsEl) {
+  if (q.answered) return;
+  q.answered = true;
+  const ok = chosen === q.correct;
+  if (ok) quizScore.c++; else quizScore.w++;
+
+  if (!ok) {
+    wordStatus[q.word] = 'unknown';
+    if (!quizWrongWords.find(w => w.word === q.word)) {
+      const entry = words.find(w => w.word === q.word);
+      if (entry) quizWrongWords.push({ ...entry, yourAnswer: chosen, correct: q.correct });
+    }
+  }
+  if (ok) {
+    quizCooldown[q.word] = Date.now() + COOLDOWN_MS;
+    if (wordStatus[q.word] === 'unknown') wordStatus[q.word] = 'known';
+  }
+  save();
+
+  optsEl.querySelectorAll('.qopt').forEach(b => {
+    b.classList.add('disabled');
+    if (b.textContent === q.correct) b.classList.add('reveal');
+  });
+  [...optsEl.querySelectorAll('.qopt')].find(b => b.textContent === chosen)?.classList.add(ok ? 'correct' : 'wrong');
+
+  const chip = document.getElementById('quiz-chip');
+  chip.className   = `quiz-chip visible ${ok ? 'chip-c' : 'chip-w'}`;
+  chip.textContent = ok ? 'Correct!' : `Answer: ${q.correct}`;
+
+  quizCur++;
+  setTimeout(renderQuiz, 1150);
+}
+
+function showQuizResult() {
+  const total = quizQuestions.length;
+  const pct   = total ? Math.round((quizScore.c / total) * 100) : 0;
+
+  document.getElementById('quiz-active').style.display        = 'none';
+  document.getElementById('quiz-result-screen').style.display = 'flex';
+
+  document.getElementById('qr-subline').textContent =
+    `${quizScore.c} correct · ${quizScore.w} wrong · ${total} total`;
+
+  const pctEl = document.getElementById('qr-pct');
+  pctEl.textContent = pct + '%';
+  pctEl.className   = `qr-pct ${pct >= 70 ? 'good' : pct >= 40 ? 'mid' : 'bad'}`;
+
+  const toggleBtn = document.getElementById('qr-wrong-toggle-btn');
+  const listEl    = document.getElementById('qr-wrong-list');
+  toggleBtn.classList.remove('open');
+  listEl.style.display = 'none';
+  listEl.innerHTML = '';
+
+  if (!quizWrongWords.length) {
+    toggleBtn.style.pointerEvents = 'none';
+    toggleBtn.style.opacity = '.5';
+    toggleBtn.innerHTML = 'No mistakes.';
+  } else {
+    toggleBtn.style.pointerEvents = '';
+    toggleBtn.style.opacity = '';
+    toggleBtn.innerHTML = `See incorrect answers <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" width="14" height="14"><polyline points="6 9 12 15 18 9"/></svg>`;
+    quizWrongWords.forEach(w => {
+      const item = document.createElement('div');
+      item.className = 'qr-wrong-item';
+      item.innerHTML = `
+        <div class="qr-wrong-word">${escHtml(w.word)}</div>
+        <div class="qr-wrong-jp">${escHtml(w.jp||'')}</div>
+        <div class="qr-wrong-ans">
+          <span class="qr-ans-wrong">${escHtml(w.yourAnswer||'')}</span>
+          <span class="qr-ans-arrow">→</span>
+          <span class="qr-ans-correct">${escHtml(w.correct||'')}</span>
+        </div>`;
+      listEl.appendChild(item);
+    });
+  }
+}
+
+function toggleMissedWords() {
+  const btn  = document.getElementById('qr-wrong-toggle-btn');
+  const list = document.getElementById('qr-wrong-list');
+  const open = btn.classList.toggle('open');
+  list.style.display = open ? 'flex' : 'none';
+}
+
+/* ══════════════════════════════════════════
+   VIEW SWITCHING
+══════════════════════════════════════════ */
+let currentView = 'explore';
+
+function switchView(v) {
+  currentView = v;
+  document.querySelectorAll('.view').forEach(x => x.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(x  => x.classList.remove('active'));
+  document.getElementById(`${v}-view`).classList.add('active');
+  document.getElementById(`tab-${v}`)?.classList.add('active');
+  document.getElementById('filter-bar').style.display = v === 'explore' ? 'flex' : 'none';
+  if (v === 'explore') renderExploreFeed();
+  if (v === 'quiz')    showQuizStart();
+}
+
+/* ══════════════════════════════════════════
+   WORD MANAGER
+══════════════════════════════════════════ */
+function openManager(tab) {
+  closeHeaderMenu();
+  document.getElementById('modal-overlay').classList.add('open');
+  switchWMTab(tab || 'import');
+}
+function closeManager() {
+  document.getElementById('modal-overlay').classList.remove('open');
+  updateBadge();
+  if (currentView === 'explore') renderExploreFeed();
+}
+
+document.getElementById('modal-overlay').addEventListener('click', e => {
+  if (e.target.id === 'modal-overlay') closeManager();
+});
+
+/* ══════════════════════════════════════════
+   HEADER DROPDOWN MENU
+══════════════════════════════════════════ */
+function toggleHeaderMenu() {
+  document.getElementById('header-dropdown').classList.toggle('open');
+}
+function closeHeaderMenu() {
+  document.getElementById('header-dropdown')?.classList.remove('open');
+}
+document.addEventListener('click', e => {
+  const wrap = document.getElementById('header-menu-wrap');
+  if (wrap && !wrap.contains(e.target)) closeHeaderMenu();
+});
+
+/* ══════════════════════════════════════════
+   QUICK ADD — single word, instant fetch,
+   reachable straight from the header.
+══════════════════════════════════════════ */
+function openQuickAdd() {
+  closeHeaderMenu();
+  document.getElementById('qa-overlay').classList.add('open');
+  document.getElementById('qa-recent').innerHTML  = '';
+  document.getElementById('qa-status').textContent = '';
+  document.getElementById('qa-input').value = '';
+  setTimeout(() => document.getElementById('qa-input').focus(), 80);
+}
+function closeQuickAdd() {
+  document.getElementById('qa-overlay').classList.remove('open');
+  updateBadge();
+  if (currentView === 'explore') renderExploreFeed();
+}
+document.getElementById('qa-overlay').addEventListener('click', e => {
+  if (e.target.id === 'qa-overlay') closeQuickAdd();
+});
+
+async function quickAddWord() {
+  const input = document.getElementById('qa-input');
+  const word  = input.value.trim();
+  if (!word) return;
+
+  if (words.find(w => w.word.toLowerCase() === word.toLowerCase())) {
+    showToast('Already in your list');
+    input.value = ''; input.focus();
+    return;
+  }
+
+  const btn    = document.getElementById('qa-add-btn');
+  const status = document.getElementById('qa-status');
+  btn.disabled = true; btn.textContent = '…';
+  status.textContent = `Fetching "${word}"…`;
+
+  const data  = await fetchWordData(word);
+  const entry = {
+    word,
+    jp:    data?.jp    || '',
+    type:  data?.type  || '',
+    def:   data?.def   || '',
+    usage: data?.usage || [],
+  };
+  words.unshift(entry);
+  save(); updateBadge();
+
+  btn.disabled = false; btn.textContent = 'Add';
+  status.textContent = data ? '' : 'No dictionary match — added with blank fields (editable later).';
+  input.value = ''; input.focus();
+
+  const list = document.getElementById('qa-recent');
+  const row  = document.createElement('div');
+  row.className = 'qa-recent-item';
+  row.innerHTML = `<span class="qa-recent-word">${escHtml(entry.word)}</span><span class="qa-recent-jp">${escHtml(entry.jp || '—')}</span>`;
+  list.prepend(row);
+
+  showToast(`Added "${word}"`);
+}
+
+function switchWMTab(t) {
+  document.querySelectorAll('.wm-tab').forEach((b, i) =>
+    b.classList.toggle('active', ['import','words'][i] === t)
+  );
+  document.getElementById('import-panel').style.cssText   = t === 'import' ? 'display:flex;flex-direction:column' : 'display:none';
+  document.getElementById('wm-words-panel').style.cssText = t === 'words'  ? 'display:flex;flex-direction:column' : 'display:none';
+  if (t === 'words') renderWordList();
+}
+
+document.getElementById('file-input').addEventListener('change', e => {
+  const f = e.target.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => { document.getElementById('tsv-area').value = ev.target.result; showToast('File loaded — press Import & Fetch'); };
+  r.readAsText(f); e.target.value = '';
+});
+const dropZone = document.getElementById('drop-zone');
+dropZone.addEventListener('dragover',  e => { e.preventDefault(); dropZone.style.borderColor = 'var(--accent3)'; });
+dropZone.addEventListener('dragleave', ()  => { dropZone.style.borderColor = ''; });
+dropZone.addEventListener('drop', e => {
+  e.preventDefault(); dropZone.style.borderColor = '';
+  const f = e.dataTransfer.files[0]; if (!f) return;
+  const r = new FileReader();
+  r.onload = ev => { document.getElementById('tsv-area').value = ev.target.result; showToast('File loaded — press Import & Fetch'); };
+  r.readAsText(f);
+});
+
+/* Word list — shown in original import order */
+function renderWordList() {
+  const q    = (document.getElementById('search-words')?.value || '').toLowerCase();
+  const list = words.filter(w => matchQuery(w, q));
+
+  const con = document.getElementById('wl-list');
+  con.innerHTML = '';
+  if (!list.length) { con.innerHTML = `<div class="wl-empty-section">No words here yet.</div>`; return; }
+
+  list.forEach(w => {
+    const id   = w.word.replace(/[^a-zA-Z0-9]/g, '_');
+    const st   = wordStatus[w.word];
+    const item = document.createElement('div');
+    item.className     = `word-list-item${st === 'unknown' ? ' is-unknown' : st === 'known' ? ' is-known' : ''}`;
+    item.style.cssText = 'flex-direction:column;align-items:stretch';
+    const u = normalizeUsage(w.usage);
+    item.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px">
+        <span class="wli-word">${escHtml(w.word)}</span>
+        <span class="wli-jp">${escHtml(w.jp||'')}</span>
+        <div class="wli-actions">
+          <button class="wli-btn" onclick="toggleEdit('${id}')" title="Edit">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="wli-btn del" onclick="delWord('${w.word}')" title="Delete">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="wli-edit-row" id="er-${id}">
+        <input placeholder="English word"         value="${escAttr(w.word)}"     data-f="word">
+        <input placeholder="Japanese"              value="${escAttr(w.jp||'')}"   data-f="jp">
+        <input placeholder="Type (adj/noun/verb…)" value="${escAttr(w.type||'')}" data-f="type">
+        <textarea placeholder="Definition"         data-f="def">${escHtml(w.def||'')}</textarea>
+        <input placeholder="Usage example 1" value="${escAttr(u[0]||'')}" data-f="usage0">
+        <input placeholder="Usage example 2" value="${escAttr(u[1]||'')}" data-f="usage1">
+        <input placeholder="Usage example 3" value="${escAttr(u[2]||'')}" data-f="usage2">
+        <button class="wli-save-btn" onclick="saveEdit('${w.word}','${id}',this)">Save</button>
+      </div>`;
+    con.appendChild(item);
+  });
+}
+
+function matchQuery(w, q) {
+  if (!q) return true;
+  return w.word.toLowerCase().includes(q) || (w.jp||'').toLowerCase().includes(q);
+}
+function toggleEdit(id) { document.getElementById(`er-${id}`)?.classList.toggle('open'); }
+
+function saveEdit(orig, id, btn) {
+  const row = btn.closest('.wli-edit-row');
+  const f   = {};
+  row.querySelectorAll('[data-f]').forEach(el => { f[el.dataset.f] = el.value.trim(); });
+  const idx = words.findIndex(w => w.word === orig);
+  if (idx < 0) return;
+  words[idx] = { word: f.word, jp: f.jp, type: f.type, def: f.def, usage: [f.usage0, f.usage1, f.usage2].filter(Boolean) };
+  if (f.word !== orig) {
+    ['wordStatus','wordSeen','quizCooldown','wordScrolled'].forEach(k => {
+      const obj = eval(k);
+      obj[f.word] = obj[orig]; delete obj[orig];
+    });
+  }
+  save(); showToast('Word updated'); renderWordList();
+}
+
+function delWord(word) {
+  words = words.filter(w => w.word !== word);
+  [wordStatus, wordSeen, quizCooldown, wordScrolled].forEach(o => delete o[word]);
+  save(); renderWordList(); updateBadge(); showToast('Word removed');
+}
+
+function addNewWord() {
+  words.unshift({ word: '', jp: '', type: '', def: '', usage: [] });
+  switchWMTab('words'); renderWordList();
+  setTimeout(() => document.querySelector('#wl-list .wli-edit-row')?.classList.add('open'), 60);
+}
+
+function clearAllWords() {
+  if (!words.length) { showToast('No words to clear'); return; }
+  document.getElementById('pw-modal-text').textContent =
+    `Delete all ${words.length} word${words.length !== 1 ? 's' : ''}? This can't be undone.`;
+  document.getElementById('pw-overlay').classList.add('open');
+}
+function closePwModal() { document.getElementById('pw-overlay').classList.remove('open'); }
+function confirmClear() {
+  words = []; wordStatus = {}; wordSeen = {}; quizCooldown = {}; wordScrolled = {};
+  save(); closePwModal(); renderWordList(); updateBadge(); showToast('All words cleared');
+}
+
+/* ══════════════════════════════════════════
+   UTILS
+══════════════════════════════════════════ */
+function updateBadge() {
+  const n = words.length;
+  document.getElementById('word-count-badge').textContent = `${n} word${n !== 1 ? 's' : ''}`;
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function escHtml(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function escAttr(str) { return escHtml(str); }
+
+function bookIcon() {
+  return `<svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>`;
+}
+function emptyStateHTML(iconHTML, title, text) {
+  return `<div class="empty-state">${iconHTML}<h3>${title}</h3><p>${text}</p><button class="btn-open-mgr" onclick="openManager()">Open Word Manager</button></div>`;
+}
+
+/* ══════════════════════════════════════════
+   INIT
+══════════════════════════════════════════ */
+updateBadge();
+renderExploreFeed();
+</script>
+</body>
+</html>
